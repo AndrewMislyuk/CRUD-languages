@@ -16,7 +16,7 @@ COMMIT;
 INSERT INTO
     languages(title, rating, developer, date_of_creation)
 VALUES
-('JavaScript', 1, 'Brendan Eich', 1995),
+    ('JavaScript', 1, 'Brendan Eich', 1995),
     (
         'Python Software Foundation, Guido van Rossum',
         2,

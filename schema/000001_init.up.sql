@@ -18,8 +18,8 @@ INSERT INTO
 VALUES
     ('JavaScript', 1, 'Brendan Eich', 1995),
     (
-        'Python Software Foundation, Guido van Rossum',
+        'Python',
         2,
-        'Brendan Eich',
+        'Python Software Foundation, Guido van Rossum',
         1991
     );

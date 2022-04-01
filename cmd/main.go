@@ -1,14 +1,13 @@
 package main
 
 import (
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/AndrewMislyuk/CRUD-languages/internal/repository/psql"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/service"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/transport/rest"
 	"github.com/AndrewMislyuk/CRUD-languages/pkg/database"
+	"github.com/sirupsen/logrus"
 	_ "github.com/lib/pq"
 )
 
@@ -22,7 +21,7 @@ func main() {
 		Password: "root",
 	})
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	defer db.Close()
 
@@ -30,11 +29,14 @@ func main() {
 	languagesService := service.NewLanguages(languagesRepo)
 	handler := rest.NewHandler(languagesService)
 
-	handler.InitRouter()
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: handler.InitRouter(),
+	}
 
-	log.Println("SERVER STARTED AT", time.Now().Format(time.RFC3339))
+	logrus.Infoln("Server has been running...")
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
+	if err := srv.ListenAndServe(); err != nil {
+		logrus.Fatal(err)
 	}
 }

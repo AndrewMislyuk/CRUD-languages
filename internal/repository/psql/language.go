@@ -1,7 +1,6 @@
 package psql
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -19,7 +18,7 @@ func NewLanguages(db *sql.DB) *Languages {
 	}
 }
 
-func (l *Languages) GetByID(ctx context.Context, id string) (domain.Language, error) {
+func (l *Languages) GetByID(id string) (domain.Language, error) {
 	rows, err := l.db.Query("SELECT * FROM languages WHERE id = $1", id)
 	if err != nil {
 		return domain.Language{}, err
@@ -35,7 +34,7 @@ func (l *Languages) GetByID(ctx context.Context, id string) (domain.Language, er
 	return language, rows.Err()
 }
 
-func (l *Languages) Update(ctx context.Context, id string, inp domain.UpdateLanguageInput) error {
+func (l *Languages) Update(id string, inp domain.UpdateLanguageInput) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
@@ -73,20 +72,21 @@ func (l *Languages) Update(ctx context.Context, id string, inp domain.UpdateLang
 	return err
 }
 
-func (l *Languages) Delete(ctx context.Context, id string) error {
+func (l *Languages) Delete(id string) error {
 	_, err := l.db.Exec("DELETE FROM languages WHERE id = $1", id)
 
 	return err
 }
 
-func (l *Languages) Create(ctx context.Context, language domain.Language) error {
-	_, err := l.db.Exec("INSERT INTO languages(title, rating, developer, date_of_creation) values ($1, $2, $3, $4)",
+func (l *Languages) Create(language domain.Language) (string, error) {
+	_, err := l.db.Exec("INSERT INTO languages(title, rating, developer, date_of_creation) values($1, $2, $3, $4) RETURNING id",
 		language.Title, language.Rating, language.Developer, language.DateOfCreation)
 
-	return err
+
+	return "", err
 }
 
-func (l *Languages) GetAll(ctx context.Context) ([]domain.Language, error) {
+func (l *Languages) GetAll() ([]domain.Language, error) {
 	rows, err := l.db.Query("SELECT * FROM languages")
 	if err != nil {
 		return nil, err

@@ -1,26 +1,26 @@
 package rest
 
 import (
-	"context"
-	"encoding/json"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"strings"
 
 	"github.com/AndrewMislyuk/CRUD-languages/internal/domain"
+	"github.com/gin-gonic/gin"
 )
 
 type Language interface {
-	Create(ctx context.Context, language domain.Language) error
-	GetByID(ctx context.Context, id string) (domain.Language, error)
-	GetAll(ctx context.Context) ([]domain.Language, error)
-	Delete(ctx context.Context, id string) error
-	Update(ctx context.Context, id string, inp domain.UpdateLanguageInput) error
+	Create(language domain.Language) (string, error)
+	GetByID(id string) (domain.Language, error)
+	GetAll() ([]domain.Language, error)
+	Delete(id string) error
+	Update(id string, inp domain.UpdateLanguageInput) error
 }
 
 type Handler struct {
 	languageService Language
+}
+
+type getAllLanguagesResponse struct {
+	Data []domain.Language `json:"data"`
 }
 
 func NewHandler(lang Language) *Handler {
@@ -29,129 +29,93 @@ func NewHandler(lang Language) *Handler {
 	}
 }
 
-func (h *Handler) InitRouter() {
-	http.HandleFunc("/language/", loggingMiddleware(h.handleLanguage))
+func (h *Handler) InitRouter() *gin.Engine {
+	router := gin.New()
+
+	language := router.Group("/language", h.loggingMiddleware)
+	{
+		language.GET("/", h.GetLanguageList)
+		language.GET("/:id", h.GetLanguageById)
+		language.POST("/", h.CreateLanguage)
+		language.PUT("/:id", h.UpdateLanguage)
+		language.DELETE("/:id", h.DeleteLanguage)
+	}
+
+	return router
 }
 
-func (h *Handler) handleLanguage(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/language/")
+func (h *Handler) GetLanguageById(c *gin.Context) {
+	id := c.Param("id")
 
-	switch r.Method {
-	case http.MethodGet:
-		if id != "" {
-			h.GetLanguageById(w, r, id)
-		} else {
-			h.GetLanguageList(w, r)
-		}
-	case http.MethodPost:
-		h.CreateLanguage(w, r)
-	case http.MethodDelete:
-		if id != "" {
-			h.DeleteLanguage(w, r, id)
-		}
-	case http.MethodPut:
-		if id != "" {
-			h.UpdateLanguage(w, r, id)
-		}
-	default:
-		w.WriteHeader(http.StatusBadGateway)
+	language, err := h.languageService.GetByID(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
 	}
+
+	c.JSON(http.StatusOK, language)
 }
 
-func (h *Handler) GetLanguageById(w http.ResponseWriter, r *http.Request, id string) {
-	language, err := h.languageService.GetByID(context.TODO(), id)
-	if err != nil {
-		log.Println("GetLanguageById() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
+func (h *Handler) UpdateLanguage(c *gin.Context) {
+	id := c.Param("id")
+
+	var input domain.UpdateLanguageInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	response, err := json.Marshal(language)
+	err := h.languageService.Update(id, input)
 	if err != nil {
-		log.Println("GetLanguageById() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(response)
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
 }
 
-func (h *Handler) UpdateLanguage(w http.ResponseWriter, r *http.Request, id string) {
-	reqBytes, err := ioutil.ReadAll(r.Body)
+func (h *Handler) DeleteLanguage(c *gin.Context) {
+	id := c.Param("id")
+
+	err := h.languageService.Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	var inp domain.UpdateLanguageInput
-	if err = json.Unmarshal(reqBytes, &inp); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	err = h.languageService.Update(context.TODO(), id, inp)
-	if err != nil {
-		log.Println("UpdateLanguage() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Language Has Been Updated"))
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
 }
 
-func (h *Handler) DeleteLanguage(w http.ResponseWriter, r *http.Request, id string) {
-	err := h.languageService.Delete(context.TODO(), id)
-	if err != nil {
-		log.Println("DeleteLanguage() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Language Has Been Deleted"))
-}
-
-func (h *Handler) CreateLanguage(w http.ResponseWriter, r *http.Request) {
-	reqBytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
+func (h *Handler) CreateLanguage(c *gin.Context) {
 	var language domain.Language
-	if err = json.Unmarshal(reqBytes, &language); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	if err := c.BindJSON(&language); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.languageService.Create(context.TODO(), language)
+	id, err := h.languageService.Create(language)
 	if err != nil {
-		log.Println("CreateLanguage() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Language Has Been Created"))
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"id": id,
+	})
 }
 
-func (h *Handler) GetLanguageList(w http.ResponseWriter, r *http.Request) {
-	language, err := h.languageService.GetAll(context.TODO())
+func (h *Handler) GetLanguageList(c *gin.Context) {
+	language, err := h.languageService.GetAll()
 	if err != nil {
-		log.Println("GetLanguageList() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	response, err := json.Marshal(language)
-	if err != nil {
-		log.Println("GetLanguageList() error: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(response)
+	c.JSON(http.StatusOK, getAllLanguagesResponse{
+		Data: language,
+	})
 }

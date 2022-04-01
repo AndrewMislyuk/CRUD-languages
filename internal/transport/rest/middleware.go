@@ -1,14 +1,10 @@
 package rest
 
 import (
-	"log"
-	"net/http"
-	"time"
+	"github.com/sirupsen/logrus"
+	"github.com/gin-gonic/gin"
 )
 
-func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s: [%s] - %s ", time.Now().Format(time.RFC3339), r.Method, r.RequestURI)
-		next(w, r)
-	}
+func (h *Handler) loggingMiddleware(c *gin.Context) {
+	logrus.Infof("[%s] - %s", c.Request.Method, c.Request.RequestURI)
 }

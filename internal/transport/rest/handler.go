@@ -3,8 +3,11 @@ package rest
 import (
 	"net/http"
 
+	_ "github.com/AndrewMislyuk/CRUD-languages/docs"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/domain"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Language interface {
@@ -23,6 +26,10 @@ type getAllLanguagesResponse struct {
 	Data []domain.Language `json:"data"`
 }
 
+type getCreationId struct {
+	Id string `json:"id"`
+}
+
 func NewHandler(lang Language) *Handler {
 	return &Handler{
 		languageService: lang,
@@ -31,6 +38,8 @@ func NewHandler(lang Language) *Handler {
 
 func (h *Handler) InitRouter() *gin.Engine {
 	router := gin.New()
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	language := router.Group("/language", h.loggingMiddleware)
 	{
@@ -44,6 +53,18 @@ func (h *Handler) InitRouter() *gin.Engine {
 	return router
 }
 
+// @Summary Get Language By ID
+// @Tags language
+// @Description get language by id
+// @ID get-by-id
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Success 200 {object} domain.Language
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /{id} [get]
 func (h *Handler) GetLanguageById(c *gin.Context) {
 	id := c.Param("id")
 
@@ -56,6 +77,19 @@ func (h *Handler) GetLanguageById(c *gin.Context) {
 	c.JSON(http.StatusOK, language)
 }
 
+// @Summary Update Language
+// @Tags language
+// @Description update language by id
+// @ID update-by-id
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Param input body domain.UpdateLanguageInput true "language info"
+// @Success 200 {object} statusResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /{id} [put]
 func (h *Handler) UpdateLanguage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -76,6 +110,18 @@ func (h *Handler) UpdateLanguage(c *gin.Context) {
 	})
 }
 
+// @Summary Delete Language
+// @Tags language
+// @Description delete language by id
+// @ID delete-by-id
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Success 200 {object} statusResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /{id} [delete]
 func (h *Handler) DeleteLanguage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -90,6 +136,18 @@ func (h *Handler) DeleteLanguage(c *gin.Context) {
 	})
 }
 
+// @Summary Create Language
+// @Tags language
+// @Description create language
+// @ID create-language
+// @Accept  json
+// @Produce  json
+// @Param input body domain.Language true "language info"
+// @Success 200 {object} getCreationId
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router / [post]
 func (h *Handler) CreateLanguage(c *gin.Context) {
 	var language domain.Language
 	if err := c.BindJSON(&language); err != nil {
@@ -103,11 +161,22 @@ func (h *Handler) CreateLanguage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+	c.JSON(http.StatusOK, getCreationId{
+		Id: id,
 	})
 }
 
+// @Summary Get Languages List
+// @Tags language
+// @Description get languages list
+// @ID get-languages
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} getAllLanguagesResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router / [get]
 func (h *Handler) GetLanguageList(c *gin.Context) {
 	language, err := h.languageService.GetAll()
 	if err != nil {

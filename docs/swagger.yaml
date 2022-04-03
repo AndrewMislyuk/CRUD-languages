@@ -1,0 +1,244 @@
+basePath: /language
+definitions:
+  domain.Language:
+    properties:
+      date_of_creation:
+        type: integer
+      developer:
+        type: string
+      id:
+        type: string
+      rating:
+        type: integer
+      title:
+        type: string
+    type: object
+  domain.UpdateLanguageInput:
+    properties:
+      date_of_creation:
+        type: integer
+      developer:
+        type: string
+      rating:
+        type: integer
+      title:
+        type: string
+    type: object
+  rest.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  rest.getAllLanguagesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Language'
+        type: array
+    type: object
+  rest.getCreationId:
+    properties:
+      id:
+        type: string
+    type: object
+  rest.statusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API about programming languages
+  title: CRUD API Languages
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: get languages list
+      operationId: get-languages
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getAllLanguagesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: Get Languages List
+      tags:
+      - language
+    post:
+      consumes:
+      - application/json
+      description: create language
+      operationId: create-language
+      parameters:
+      - description: language info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Language'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getCreationId'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: Create Language
+      tags:
+      - language
+  /{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete language by id
+      operationId: delete-by-id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: Delete Language
+      tags:
+      - language
+    get:
+      consumes:
+      - application/json
+      description: get language by id
+      operationId: get-by-id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Language'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: Get Language By ID
+      tags:
+      - language
+    put:
+      consumes:
+      - application/json
+      description: update language by id
+      operationId: update-by-id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: language info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateLanguageInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: Update Language
+      tags:
+      - language
+swagger: "2.0"

@@ -11,6 +11,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// @title CRUD API Languages
+// @version 1.0
+// @description API about programming languages
+
+// @host localhost:8080
+// @BasePath /language
+
 func main() {
 	db, err := database.NewPostgresConnection(database.ConnectionInfo{
 		Host:     "localhost",

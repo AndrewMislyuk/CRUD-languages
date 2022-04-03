@@ -13,4 +13,7 @@ migrateup:
 migratedown:
 	migrate -path ./schema -database "postgresql://root:root@localhost:5432/crud-languages?sslmode=disable" -verbose down
 
-.PHONY:postgres createdb dropdb migrateup migratedown
+swag:
+	swag init -g cmd/main.go
+
+.PHONY:postgres createdb dropdb migrateup migratedown swag

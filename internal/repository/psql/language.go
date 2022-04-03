@@ -79,11 +79,29 @@ func (l *Languages) Delete(id string) error {
 }
 
 func (l *Languages) Create(language domain.Language) (string, error) {
-	_, err := l.db.Exec("INSERT INTO languages(title, rating, developer, date_of_creation) values($1, $2, $3, $4) RETURNING id",
-		language.Title, language.Rating, language.Developer, language.DateOfCreation)
+	tx, err := l.db.Begin()
+	if err != nil {
+		return "", err
+	}
 
+	var id string
+	row, err := tx.Prepare("INSERT INTO languages(title, rating, developer, date_of_creation) values($1, $2, $3, $4) RETURNING id")
+	if err != nil {
+		return "", err
+	}
 
-	return "", err
+	defer row.Close()
+
+	if err = row.QueryRow(language.Title, language.Rating, language.Developer, language.DateOfCreation).Scan(&id); err != nil {
+		return "", err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
 }
 
 func (l *Languages) GetAll() ([]domain.Language, error) {

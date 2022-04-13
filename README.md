@@ -20,3 +20,6 @@ docker exec -it postgres-container createdb --username=root --owner=root crud-la
 ```go
 migrate -path ./schema -database "postgresql://root:root@localhost:5432/crud-languages?sslmode=disable" -verbose up
 ```
+
+### Swagger UI
+```http://localhost:8080/swagger/index.html#/```

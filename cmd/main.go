@@ -1,14 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/AndrewMislyuk/CRUD-languages/internal/config"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/repository/psql"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/service"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/transport/rest"
 	"github.com/AndrewMislyuk/CRUD-languages/pkg/database"
-	"github.com/sirupsen/logrus"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
+)
+
+const (
+	CONFIG_DIR  = "configs"
+	CONFIG_FILE = "main"
 )
 
 // @title CRUD API Languages
@@ -19,13 +27,25 @@ import (
 // @BasePath /language
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	cfg, err := config.New(CONFIG_DIR, CONFIG_FILE)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	logrus.Printf("%+v", cfg)
+
 	db, err := database.NewPostgresConnection(database.ConnectionInfo{
-		Host:     "localhost",
-		Port:     5432,
-		Username: "root",
-		DBName:   "crud-languages",
-		SSLMode:  "disable",
-		Password: "root",
+		Host:     cfg.DB.Host,
+		Port:     cfg.DB.Port,
+		Username: cfg.DB.Username,
+		DBName:   cfg.DB.Name,
+		SSLMode:  cfg.DB.SSLMode,
+		Password: cfg.DB.Password,
 	})
 	if err != nil {
 		logrus.Fatal(err)
@@ -37,7 +57,7 @@ func main() {
 	handler := rest.NewHandler(languagesService)
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
 		Handler: handler.InitRouter(),
 	}
 

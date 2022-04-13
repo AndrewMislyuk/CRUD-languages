@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/AndrewMislyuk/CRUD-languages/internal/config"
 	"github.com/AndrewMislyuk/CRUD-languages/internal/repository/psql"
@@ -18,6 +19,12 @@ const (
 	CONFIG_DIR  = "configs"
 	CONFIG_FILE = "main"
 )
+
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.InfoLevel)
+}
 
 // @title CRUD API Languages
 // @version 1.0

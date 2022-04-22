@@ -31,8 +31,11 @@ func init() {
 // @description API about programming languages
 
 // @host localhost:8080
-// @BasePath /language
+// @BasePath /
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	err := godotenv.Load()
 	if err != nil {

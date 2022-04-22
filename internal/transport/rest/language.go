@@ -7,6 +7,7 @@ import (
 )
 
 // @Summary Get Language By ID
+// @Security ApiKeyAuth
 // @Tags language
 // @Description get language by id
 // @ID get-by-id
@@ -17,7 +18,7 @@ import (
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /{id} [get]
+// @Router /language/{id} [get]
 func (h *Handler) GetLanguageById(c *gin.Context) {
 	id := c.Param("id")
 
@@ -31,6 +32,7 @@ func (h *Handler) GetLanguageById(c *gin.Context) {
 }
 
 // @Summary Update Language
+// @Security ApiKeyAuth
 // @Tags language
 // @Description update language by id
 // @ID update-by-id
@@ -42,7 +44,7 @@ func (h *Handler) GetLanguageById(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /{id} [put]
+// @Router /language/{id} [put]
 func (h *Handler) UpdateLanguage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -64,6 +66,7 @@ func (h *Handler) UpdateLanguage(c *gin.Context) {
 }
 
 // @Summary Delete Language
+// @Security ApiKeyAuth
 // @Tags language
 // @Description delete language by id
 // @ID delete-by-id
@@ -74,7 +77,7 @@ func (h *Handler) UpdateLanguage(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /{id} [delete]
+// @Router /language/{id} [delete]
 func (h *Handler) DeleteLanguage(c *gin.Context) {
 	id := c.Param("id")
 
@@ -90,6 +93,7 @@ func (h *Handler) DeleteLanguage(c *gin.Context) {
 }
 
 // @Summary Create Language
+// @Security ApiKeyAuth
 // @Tags language
 // @Description create language
 // @ID create-language
@@ -100,7 +104,7 @@ func (h *Handler) DeleteLanguage(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router / [post]
+// @Router /language/ [post]
 func (h *Handler) CreateLanguage(c *gin.Context) {
 	var language domain.Language
 	if err := c.BindJSON(&language); err != nil {
@@ -120,6 +124,7 @@ func (h *Handler) CreateLanguage(c *gin.Context) {
 }
 
 // @Summary Get Languages List
+// @Security ApiKeyAuth
 // @Tags language
 // @Description get languages list
 // @ID get-languages
@@ -129,7 +134,7 @@ func (h *Handler) CreateLanguage(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router / [get]
+// @Router /language/ [get]
 func (h *Handler) GetLanguageList(c *gin.Context) {
 	language, err := h.languageService.GetAll()
 	if err != nil {

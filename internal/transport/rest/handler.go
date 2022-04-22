@@ -36,6 +36,10 @@ type getCreationId struct {
 	Id string `json:"id"`
 }
 
+type getCreationToken struct {
+	AccessToken string `json:"token"`
+}
+
 func NewHandler(service *service.Service) *Handler {
 	return &Handler{
 		languageService: service.Language,

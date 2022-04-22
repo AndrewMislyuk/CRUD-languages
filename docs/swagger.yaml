@@ -1,4 +1,4 @@
-basePath: /language
+basePath: /
 definitions:
   domain.Language:
     properties:
@@ -12,6 +12,29 @@ definitions:
         type: integer
       title:
         type: string
+    type: object
+  domain.SignInInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.SignUpInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
     type: object
   domain.UpdateLanguageInput:
     properties:
@@ -41,6 +64,11 @@ definitions:
       id:
         type: string
     type: object
+  rest.getCreationToken:
+    properties:
+      token:
+        type: string
+    type: object
   rest.statusResponse:
     properties:
       status:
@@ -53,7 +81,85 @@ info:
   title: CRUD API Languages
   version: "1.0"
 paths:
-  /:
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: user sign-in
+      operationId: sign-in
+      parameters:
+      - description: User info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getCreationToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: SignIn
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: user sign-up
+      operationId: sign-up
+      parameters:
+      - description: User info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignUpInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getCreationId'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/rest.errorResponse'
+      summary: SignUp
+      tags:
+      - Auth
+  /language/:
     get:
       consumes:
       - application/json
@@ -82,6 +188,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/rest.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get Languages List
       tags:
       - language
@@ -120,10 +228,12 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/rest.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create Language
       tags:
       - language
-  /{id}:
+  /language/{id}:
     delete:
       consumes:
       - application/json
@@ -158,6 +268,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/rest.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete Language
       tags:
       - language
@@ -195,6 +307,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/rest.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get Language By ID
       tags:
       - language
@@ -238,7 +352,14 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/rest.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update Language
       tags:
       - language
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

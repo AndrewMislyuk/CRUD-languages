@@ -11,6 +11,14 @@ CREATE TABLE IF NOT EXISTS "languages" (
     PRIMARY KEY ("id")
 );
 
+CREATE TABLE users (
+    "id" uuid DEFAULT uuid_generate_v4(),
+    "name" varchar(255) NOT NULL,
+    "email" varchar(255) NOT NULL unique,
+    "password_hash" varchar(255) NOT NULL,
+    PRIMARY KEY ("id")
+);
+
 COMMIT;
 
 INSERT INTO

@@ -59,8 +59,8 @@ func main() {
 	}
 	defer db.Close()
 
-	languagesRepo := psql.NewLanguages(db)
-	languagesService := service.NewLanguages(languagesRepo)
+	languagesRepo := psql.NewRepository(db)
+	languagesService := service.NewService(languagesRepo)
 	handler := rest.NewHandler(languagesService)
 
 	srv := &http.Server{

@@ -3,19 +3,16 @@ package psql
 import (
 	"database/sql"
 	"fmt"
-	"strings"
-
 	"github.com/AndrewMislyuk/CRUD-languages/internal/domain"
+	"strings"
 )
 
 type Languages struct {
 	db *sql.DB
 }
 
-func NewLanguages(db *sql.DB) *Languages {
-	return &Languages{
-		db: db,
-	}
+func NewLanguagesRepository(db *sql.DB) *Languages {
+	return &Languages{db: db}
 }
 
 func (l *Languages) GetByID(id string) (domain.Language, error) {

@@ -2,21 +2,14 @@ package service
 
 import (
 	"github.com/AndrewMislyuk/CRUD-languages/internal/domain"
+	repo "github.com/AndrewMislyuk/CRUD-languages/internal/repository/psql"
 )
 
-type LanguageRepository interface {
-	Create(language domain.Language) (string, error)
-	GetByID(id string) (domain.Language, error)
-	GetAll() ([]domain.Language, error)
-	Delete(id string) error
-	Update(id string, inp domain.UpdateLanguageInput) error
-}
-
 type Languages struct {
-	repo LanguageRepository
+	repo repo.Language
 }
 
-func NewLanguages(repo LanguageRepository) *Languages {
+func NewLanguagesService(repo repo.Language) *Languages {
 	return &Languages{
 		repo: repo,
 	}
